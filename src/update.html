@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Boss 批量沟通 · 更新</title>
+  <link rel="stylesheet" href="update.css">
+</head>
+<body>
+  <main class="card">
+    <header>
+      <span class="logo">B</span>
+      <div>
+        <h1>Boss 批量沟通</h1>
+        <p class="sub">当前版本 <b id="cur">…</b></p>
+      </div>
+      <a class="gh" id="repo" target="_blank" rel="noopener">GitHub ↗</a>
+    </header>
+
+    <div id="done" class="banner ok" hidden>✓ 已更新到最新版本，打开着的 Boss 页面已自动刷新。</div>
+
+    <section>
+      <div class="row">
+        <h2 id="title">正在检查更新…</h2>
+        <button class="ghost" id="recheck">重新检查</button>
+      </div>
+      <p class="muted" id="meta"></p>
+      <pre id="notes" hidden></pre>
+    </section>
+
+    <section id="upd" hidden>
+      <button class="primary" id="go">一键更新</button>
+      <p class="muted" id="hint">
+        第一次更新时会让你选择一次<b>扩展所在的文件夹</b>（就是当初「加载已解压的扩展程序」时选的那个，里面有 manifest.json），并允许修改。
+        之后再更新就只需要点这个按钮。
+      </p>
+      <div id="steps"></div>
+      <button class="ghost small" id="forget" hidden>换一个文件夹</button>
+    </section>
+
+    <details>
+      <summary>手动更新方法</summary>
+      <ol>
+        <li>打开 <a id="dl" target="_blank" rel="noopener">GitHub 发布页</a>，下载最新版本的 Source code (zip) 并解压；</li>
+        <li>用解压出来的文件覆盖原来的扩展文件夹；</li>
+        <li>打开 <code>chrome://extensions</code>，在「Boss 批量沟通」卡片上点刷新 ↻，再刷新 Boss 页面。</li>
+      </ol>
+      <p class="muted">用 git clone 安装的，也可以在扩展文件夹里运行 <code>git pull</code>，再到扩展页点刷新 ↻。</p>
+    </details>
+  </main>
+  <script src="update.js"></script>
+</body>
+</html>

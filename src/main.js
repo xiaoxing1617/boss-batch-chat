@@ -1,4 +1,4 @@
-// Boss 批量沟通 v0.4
+// Boss 批量沟通 v0.5
 // 职位列表页：左侧勾选职位 → 逐个处理（没沟通过先「立即沟通」）→ 右侧切到「沟通」tab →
 // 按顺序发送多条文本/图片消息，每条确认发送成功再发下一条 → 再处理下一个职位。
 // 运行在页面主环境（world: MAIN），才能读到职位卡片上的 Vue 数据。
@@ -133,6 +133,7 @@
       <button class="bbc-nav-btn bbc-jobs-only" data-page="sel">已选 <span class="bbc-badge bbc-sel-n">0</span></button>
       <button class="bbc-nav-btn" data-page="lib">文本库</button>
       <button class="bbc-nav-btn" data-page="rec">记录</button>
+      <button class="bbc-nav-btn" data-page="about">关于<i class="bbc-dot" hidden></i></button>
     </div>
 
     <div class="bbc-login" hidden>
@@ -199,6 +200,34 @@
           <div class="bbc-row"><button class="bbc-ghost" data-act="diag">4 秒后采集</button>
             <button class="bbc-ghost" data-act="diag-copy">复制诊断信息</button></div>
           <div class="bbc-hint">点「采集」后 4 秒内去打开要诊断的弹窗或常用语；发送确认失败时会自动采集。</div>
+        </div>
+      </div>
+
+      <div class="bbc-page" data-page="about">
+        <div class="bbc-about-hero">
+          <span class="bbc-logo bbc-logo-lg">B</span>
+          <div><b>Boss 批量沟通</b><span class="bbc-hint">自己挑职位，一键打招呼 + 按顺序发消息</span></div>
+          <span class="bbc-ver">v…</span>
+        </div>
+        <div class="bbc-card">
+          <div class="bbc-sec-title"><span>版本更新</span><button class="bbc-ghost" data-act="check-upd">检查更新</button></div>
+          <div class="bbc-upd-state">还没检查</div>
+          <pre class="bbc-upd-notes" hidden></pre>
+          <div class="bbc-row bbc-upd-btns" hidden>
+            <button class="bbc-primary bbc-sm" data-act="do-upd">一键更新</button>
+            <a class="bbc-ghost bbc-upd-link" target="_blank" rel="noopener">查看更新说明</a>
+          </div>
+          <div class="bbc-hint">新版本发布在 GitHub，面板每 6 小时自动检查一次。</div>
+        </div>
+        <div class="bbc-card">
+          <div class="bbc-sec-title"><span>开源地址</span></div>
+          <a class="bbc-repo" href="${REPO_URL}" target="_blank" rel="noopener">${GH_ICON}<span>github.com/xiaoxing1617/boss-batch-chat</span><i>↗</i></a>
+          <div class="bbc-links">
+            <a class="bbc-ghost" href="${REPO_URL}" target="_blank" rel="noopener">⭐ 点个 Star</a>
+            <a class="bbc-ghost" href="${REPO_URL}/issues" target="_blank" rel="noopener">反馈问题</a>
+            <a class="bbc-ghost" href="${REPO_URL}#${encodeURIComponent('交流群')}" target="_blank" rel="noopener">加入交流群</a>
+          </div>
+          <div class="bbc-hint">免费开源（MIT 协议）。觉得好用请点个 Star，这是我继续更新的最大动力。</div>
         </div>
       </div>
     </div>
@@ -1388,6 +1417,82 @@
   // 切回这个标签页时重新检测（可能在别的页面登录了）
   document.addEventListener('visibilitychange', () => document.visibilityState === 'visible' && loggedIn === false && checkLogin());
 
+  // ================= 版本更新（通过扩展后台读取 GitHub 发布） =================
+  // main.js 在页面主环境里用不了扩展接口，通过 bridge.js 转发
+  const extCall = (type, data, timeout = 20000) =>
+    new Promise((resolve) => {
+      const id = uid();
+      const on = (e) => {
+        if (e.source !== window || e.data?.source !== 'bbc-ext' || e.data.id !== id) return;
+        removeEventListener('message', on);
+        clearTimeout(t);
+        resolve(e.data.result || { error: '没有返回结果' });
+      };
+      const t = setTimeout(() => {
+        removeEventListener('message', on);
+        resolve({ error: '连接不上扩展，请刷新页面' });
+      }, timeout);
+      addEventListener('message', on);
+      window.postMessage({ source: 'bbc-page', id, type, data }, location.origin);
+    });
+  let updInfo = null;
+  const showUpd = (r) => {
+    const st = $('.bbc-upd-state');
+    const notes = $('.bbc-upd-notes');
+    $('.bbc-upd-btns').hidden = true;
+    notes.hidden = true;
+    $('.bbc-dot').hidden = true;
+    if (r.error) {
+      st.textContent = '检查失败：' + r.error;
+      st.className = 'bbc-upd-state bbc-off';
+      return;
+    }
+    if (r.current) $('.bbc-ver').textContent = 'v' + r.current;
+    if (!r.latest) {
+      st.textContent = '还没有发布任何版本';
+      st.className = 'bbc-upd-state';
+      return;
+    }
+    if (r.hasUpdate) {
+      st.textContent = `发现新版本 v${r.latest}（当前 v${r.current}）`;
+      st.className = 'bbc-upd-state bbc-new-ver';
+      $('.bbc-upd-btns').hidden = false;
+      $('[data-act="do-upd"]').textContent = `一键更新到 v${r.latest}`;
+      $('.bbc-upd-link').href = r.url || REPO_URL + '/releases/latest';
+      $('.bbc-dot').hidden = false;
+      if (r.notes) {
+        notes.textContent = r.notes;
+        notes.hidden = false;
+      }
+    } else {
+      st.textContent = `已经是最新版本 ✓（v${r.current}）`;
+      st.className = 'bbc-upd-state bbc-on';
+    }
+  };
+  const checkUpd = async (force) => {
+    $('.bbc-upd-state').textContent = '正在检查…';
+    $('.bbc-upd-state').className = 'bbc-upd-state';
+    const r = await extCall('checkUpdate', { force });
+    updInfo = r;
+    showUpd(r);
+    if (r.hasUpdate && state.updNotified !== r.latest) {
+      state.updNotified = r.latest;
+      save();
+      log(`🎉 发现新版本 v${r.latest}，在「关于」页可以一键更新`);
+    }
+    return r;
+  };
+  $('[data-act="check-upd"]').addEventListener('click', safe(() => checkUpd(true)));
+  $('[data-act="do-upd"]').addEventListener(
+    'click',
+    safe(async () => {
+      if (running) return log('正在发送中，请等任务结束或点「停止」后再更新');
+      const r = await extCall('openUpdater');
+      if (r.error) return log('✗ 打开更新页失败：' + r.error);
+      log('已在新标签页打开更新页面，按提示操作即可');
+    })
+  );
+
   // ================= Boss 打招呼语（只读） =================
   // 「立即沟通」时 Boss 自动发出的第一句话，来自用户在 Boss 里设置的打招呼语
   const loadGreeting = async () => {
@@ -1572,6 +1677,8 @@
   renderLib();
   enableDrag();
   checkLogin().then(() => onJobs && loadGreeting());
+  extCall('info', null, 4000).then((r) => r.version && ($('.bbc-ver').textContent = 'v' + r.version));
+  setTimeout(() => checkUpd(false), 3000); // 页面加载完再检查（6 小时内用缓存，不会频繁请求 GitHub）
   if (onChat) setInterval(() => !running && refreshCur(), 1000); // 跟着用户点的会话更新「当前对话」
   if (onJobs) {
     decorate();
