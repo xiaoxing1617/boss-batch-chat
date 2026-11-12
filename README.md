@@ -14,6 +14,7 @@
   <img src="https://img.shields.io/badge/Chrome%20%2F%20Edge-111%2B-4285F4?logo=googlechrome&logoColor=white" alt="Chrome / Edge 111+">
   <img src="https://img.shields.io/badge/Manifest-V3-00bebd" alt="Manifest V3">
   <a href="LICENSE"><img src="https://img.shields.io/github/license/xiaoxing1617/boss-batch-chat" alt="MIT"></a>
+  <img src="https://visitor-badge.laobi.icu/badge?page_id=xiaoxing1617.boss-batch-chat&left_text=%E8%AE%BF%E5%AE%A2&left_color=%23555&right_color=%2300bebd" alt="访客">
 </p>
 
 > ⭐ **如果这个小工具帮你省了时间，请点一下右上角的 Star 支持一下！** 你的每一个 Star 都是我继续更新的动力，也能让更多正在找工作的人发现它。
