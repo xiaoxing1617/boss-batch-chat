@@ -1,0 +1,14 @@
+# 系统 / 编辑器生成的文件
+.DS_Store
+._*
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+*.log
+# 本地临时文件
+*.zip
+*.crx
+*.pem
+node_modules/

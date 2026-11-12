@@ -1,0 +1,643 @@
+/* ================= 职位卡片左侧勾选框 ================= */
+.job-card-box.bbc-has-check { position: relative; padding-left: 46px !important; }
+.bbc-check {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #b8e6e6;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.bbc-check:hover { border-color: #00bebd; box-shadow: 0 0 0 3px rgba(0, 190, 189, 0.15); }
+.bbc-check input { display: none; }
+.bbc-check.bbc-on { background: #00bebd; border-color: #00bebd; }
+.bbc-check.bbc-on::after { content: '✓'; color: #fff; font-size: 14px; font-weight: 700; line-height: 1; }
+
+/* ================= 右侧 职位 / 沟通 tab ================= */
+.bbc-tabs {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  padding: 5px;
+  margin-bottom: 10px;
+  background: #f3f6f8;
+  border-radius: 10px;
+}
+.bbc-tabs .bbc-tab {
+  flex: 1;
+  padding: 8px 0;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #666;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.bbc-tabs .bbc-tab:hover { color: #00a6a7; }
+.bbc-tabs .bbc-tab.bbc-active { background: #fff; color: #00a6a7; font-weight: 600; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08); }
+#bbc-chat-pane {
+  position: fixed;
+  z-index: 9000;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.14);
+  overflow: hidden;
+}
+#bbc-chat-pane.bbc-hidden { left: -99999px !important; }
+#bbc-chat-pane iframe { width: 100%; height: 100%; border: 0; }
+
+/* ================= 控制面板 ================= */
+#bbc-panel {
+  --c: #00bebd;
+  --c-d: #00a6a7;
+  --c-l: #e6f8f8;
+  --line: #edf0f2;
+  --muted: #8a949c;
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 99999;
+  width: 460px;
+  height: min(700px, calc(100vh - 40px)); /* 固定高度，切换页签不跳动 */
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(16, 42, 56, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  font-size: 13px;
+  line-height: 1.5;
+  color: #2b3238;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+#bbc-panel * { box-sizing: border-box; }
+#bbc-panel button { font-family: inherit; cursor: pointer; transition: all 0.15s; }
+#bbc-panel button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* 头部 */
+#bbc-panel .bbc-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: linear-gradient(120deg, #00bebd, #00a2b8);
+  color: #fff;
+  cursor: move;
+  user-select: none;
+  flex-shrink: 0;
+}
+#bbc-panel .bbc-title { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; }
+#bbc-panel .bbc-logo {
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 13px;
+}
+#bbc-panel .bbc-count:not(:empty) {
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.22);
+  font-size: 12px;
+  font-weight: 500;
+}
+#bbc-panel .bbc-head-ops { display: flex; gap: 4px; align-items: center; }
+#bbc-panel .bbc-hbtn {
+  cursor: pointer;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  font-size: 16px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+#bbc-panel .bbc-hbtn:hover { background: rgba(255, 255, 255, 0.2); }
+/* 收起后：一条紧凑的小胶囊 */
+#bbc-panel.bbc-collapsed { width: auto; height: auto; border-radius: 16px; }
+#bbc-panel.bbc-collapsed .bbc-head { padding: 8px 8px 8px 10px; gap: 14px; border-radius: 16px; }
+#bbc-panel.bbc-collapsed .bbc-title { font-size: 14px; gap: 7px; }
+#bbc-panel.bbc-collapsed .bbc-logo { width: 22px; height: 22px; border-radius: 6px; font-size: 12px; }
+#bbc-panel.bbc-collapsed .bbc-hbtn { width: 24px; height: 24px; font-size: 14px; }
+#bbc-panel.bbc-collapsed .bbc-home { display: none; }
+#bbc-panel .bbc-title, #bbc-panel .bbc-title > span { white-space: nowrap; }
+#bbc-panel .bbc-count:not(:empty) { line-height: 18px; }
+#bbc-panel a.bbc-hbtn { color: #fff; text-decoration: none; opacity: 0.92; }
+#bbc-panel a.bbc-hbtn:hover { opacity: 1; }
+#bbc-panel.bbc-collapsed > :not(.bbc-head) { display: none !important; }
+
+/* 步骤条 */
+#bbc-panel .bbc-steps {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 14px 4px;
+  flex-shrink: 0;
+}
+#bbc-panel .bbc-step {
+  flex: 1;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 7px;
+  align-items: center;
+  padding: 7px 8px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fafbfc;
+  text-align: left;
+}
+#bbc-panel .bbc-step:hover { border-color: var(--c); }
+#bbc-panel .bbc-step b {
+  grid-row: span 2;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #dfe4e8;
+  color: #fff;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#bbc-panel .bbc-step span { font-size: 13px; font-weight: 600; color: #2b3238; }
+#bbc-panel .bbc-step em { font-style: normal; font-size: 11px; color: var(--muted); }
+#bbc-panel .bbc-step.bbc-done { background: var(--c-l); border-color: #bfeaea; }
+#bbc-panel .bbc-step.bbc-done b { background: var(--c); }
+#bbc-panel .bbc-step.bbc-done em { color: var(--c-d); }
+#bbc-panel .bbc-step-arrow { font-style: normal; color: #c5ccd2; font-size: 16px; }
+
+/* 页签 */
+#bbc-panel .bbc-nav { display: flex; gap: 2px; padding: 8px 14px 0; border-bottom: 1px solid var(--line); flex-shrink: 0; }
+#bbc-panel .bbc-nav-btn {
+  flex: 1;
+  padding: 8px 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+}
+#bbc-panel .bbc-nav-btn:hover { color: #2b3238; }
+#bbc-panel .bbc-nav-btn.bbc-active { color: var(--c-d); border-bottom-color: var(--c); font-weight: 600; }
+#bbc-panel .bbc-badge {
+  display: inline-block;
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: #eef1f3;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 18px;
+  text-align: center;
+}
+#bbc-panel .bbc-nav-btn.bbc-active .bbc-badge { background: var(--c); color: #fff; }
+
+/* 内容区 */
+#bbc-panel .bbc-body { flex: 1; min-height: 0; padding: 12px 14px; overflow-y: auto; }
+#bbc-panel .bbc-page { display: flex; flex-direction: column; gap: 10px; }
+#bbc-panel .bbc-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+#bbc-panel .bbc-between { justify-content: space-between; }
+#bbc-panel .bbc-bar { display: flex; align-items: center; gap: 8px; }
+#bbc-panel .bbc-hint { color: var(--muted); font-size: 12px; }
+#bbc-panel .bbc-sec-title { display: flex; justify-content: space-between; align-items: center; font-weight: 600; color: #2b3238; }
+#bbc-panel .bbc-card { padding: 12px; border: 1px solid var(--line); border-radius: 12px; display: flex; flex-direction: column; gap: 6px; }
+#bbc-panel .bbc-big { font-size: 18px; font-weight: 700; color: var(--c-d); }
+
+/* 开关 */
+#bbc-panel .bbc-switch { display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; color: #2b3238; }
+#bbc-panel .bbc-switch input { display: none; }
+#bbc-panel .bbc-switch i {
+  position: relative;
+  width: 34px;
+  height: 20px;
+  border-radius: 10px;
+  background: #d5dbe0;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+#bbc-panel .bbc-switch i::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: left 0.15s;
+}
+#bbc-panel .bbc-switch input:checked + i { background: var(--c); }
+#bbc-panel .bbc-switch input:checked + i::after { left: 16px; }
+
+/* 按钮 */
+#bbc-panel .bbc-ghost {
+  padding: 4px 10px;
+  border: 1px solid #d9e0e5;
+  border-radius: 7px;
+  background: #fff;
+  color: #4a555e;
+  font-size: 12px;
+  margin-left: 4px;
+}
+#bbc-panel .bbc-ghost:hover { border-color: var(--c); color: var(--c-d); }
+#bbc-panel .bbc-sm { padding: 2px 8px; flex-shrink: 0; }
+#bbc-panel .bbc-icon {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #8a949c;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+#bbc-panel .bbc-icon:hover:not(:disabled) { background: #eef2f4; color: #2b3238; }
+#bbc-panel .bbc-icon-del:hover:not(:disabled) { background: #fdecee; color: #f5576c; }
+
+/* 消息序列 */
+#bbc-panel .bbc-seq { display: flex; flex-direction: column; gap: 8px; }
+#bbc-panel .bbc-seq.bbc-off { opacity: 0.45; }
+#bbc-panel .bbc-msg {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 10px 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+#bbc-panel .bbc-msg::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 10px;
+  bottom: 10px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--c);
+}
+#bbc-panel .bbc-msg-image::before { background: #ff9f43; }
+#bbc-panel .bbc-msg:hover { border-color: #cfe9e9; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); }
+#bbc-panel .bbc-msg-head { display: flex; align-items: center; gap: 8px; }
+#bbc-panel .bbc-no {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--c);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  font-style: normal;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+#bbc-panel .bbc-msg-image .bbc-no { background: #ff9f43; }
+#bbc-panel .bbc-type { flex: 1; font-size: 12px; color: var(--muted); }
+#bbc-panel .bbc-ops { display: flex; gap: 2px; }
+#bbc-panel .bbc-msg textarea {
+  width: 100%;
+  padding: 7px 9px;
+  border: 1px solid #e3e8ec;
+  border-radius: 8px;
+  background: #fafbfc;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #2b3238;
+  resize: vertical;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.15s;
+}
+#bbc-panel .bbc-msg textarea:focus { border-color: var(--c); background: #fff; box-shadow: 0 0 0 3px rgba(0, 190, 189, 0.12); }
+#bbc-panel .bbc-img-wrap { display: flex; gap: 10px; align-items: center; color: var(--muted); font-size: 12px; word-break: break-all; }
+#bbc-panel .bbc-img-wrap img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  flex-shrink: 0;
+  cursor: zoom-in;
+  background: #f3f5f7;
+}
+#bbc-panel .bbc-img-wrap img:hover { border-color: var(--c); }
+#bbc-panel .bbc-img-info { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+#bbc-panel .bbc-img-name { color: #2b3238; }
+#bbc-panel .bbc-img-btns { display: flex; gap: 6px; }
+
+/* 添加按钮 */
+#bbc-panel .bbc-adds { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+#bbc-panel .bbc-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 9px 0;
+  border: 1.5px dashed #c9d3da;
+  border-radius: 10px;
+  background: #fff;
+  color: #4a555e;
+  font-size: 13px;
+}
+#bbc-panel .bbc-add b { color: var(--c); font-size: 14px; }
+#bbc-panel .bbc-add:hover { border-color: var(--c); background: var(--c-l); color: var(--c-d); }
+
+/* 变量标签 */
+#bbc-panel .bbc-vars { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+#bbc-panel .bbc-chip {
+  padding: 2px 10px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--c-l);
+  color: var(--c-d);
+  font-size: 12px;
+}
+#bbc-panel .bbc-chip::before { content: '+ '; opacity: 0.6; }
+#bbc-panel .bbc-chip:hover { background: var(--c); color: #fff; }
+
+#bbc-panel .bbc-tip {
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #f4f8fb;
+  color: #5d6a74;
+  font-size: 12px;
+}
+#bbc-panel .bbc-tip b { color: var(--c-d); }
+
+/* 空状态 */
+#bbc-panel .bbc-empty {
+  padding: 18px 10px;
+  border: 1.5px dashed #dfe5e9;
+  border-radius: 12px;
+  text-align: center;
+  color: #4a555e;
+  font-size: 13px;
+}
+#bbc-panel .bbc-empty span { color: var(--muted); font-size: 12px; }
+#bbc-panel .bbc-empty-sm { padding: 10px; font-size: 12px; color: var(--muted); }
+
+/* 列表（已选 / 文案库） */
+#bbc-panel .bbc-lib { display: flex; flex-direction: column; gap: 6px; }
+#bbc-panel .bbc-lib-item {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 7px 8px 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
+#bbc-panel .bbc-lib-item:hover { border-color: #cfe9e9; }
+#bbc-panel .bbc-lib-item { align-items: flex-start; }
+#bbc-panel .bbc-lib-item > button, #bbc-panel .bbc-lib-item > .bbc-no { margin-top: 1px; }
+#bbc-panel .bbc-lib-item > span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 24px; }
+/* 一行省略 + 展开 / 收起 */
+#bbc-panel .bbc-foldbox { flex: 1; min-width: 0; display: flex; align-items: flex-start; gap: 6px; }
+#bbc-panel .bbc-fold-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 24px; cursor: pointer; }
+#bbc-panel .bbc-foldbox.bbc-open .bbc-fold-text { white-space: pre-wrap; word-break: break-all; line-height: 1.6; padding: 2px 0; }
+#bbc-panel .bbc-fold-btn {
+  flex-shrink: 0;
+  border: none;
+  background: none;
+  color: var(--c-d);
+  font-size: 12px;
+  line-height: 24px;
+  padding: 0 2px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+#bbc-panel .bbc-fold-btn:hover { text-decoration: underline; }
+#bbc-panel .bbc-fold-btn[hidden] { display: none; }
+#bbc-panel .bbc-star { font-style: normal; color: var(--c-d); }
+#bbc-panel .bbc-sel-item em { font-style: normal; color: var(--muted); font-size: 12px; margin-left: 6px; }
+
+/* 底部 */
+#bbc-panel .bbc-foot {
+  flex-shrink: 0;
+  padding: 10px 14px 12px;
+  border-top: 1px solid var(--line);
+  background: #fbfcfd;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+#bbc-panel .bbc-interval { color: #4a555e; }
+#bbc-panel .bbc-interval input {
+  width: 64px;
+  padding: 4px 6px;
+  margin: 0 3px;
+  border: 1px solid #d9e0e5;
+  border-radius: 6px;
+  text-align: center;
+  font-size: 13px;
+  outline: none;
+}
+#bbc-panel .bbc-interval input:focus { border-color: var(--c); }
+#bbc-panel .bbc-primary {
+  flex: 1;
+  padding: 11px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: linear-gradient(120deg, #00bebd, #00a2b8);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 190, 189, 0.3);
+}
+#bbc-panel .bbc-primary:hover:not(:disabled) { filter: brightness(1.05); box-shadow: 0 6px 16px rgba(0, 190, 189, 0.4); }
+#bbc-panel .bbc-danger {
+  padding: 11px 16px;
+  border: 1px solid #f7c3ca;
+  border-radius: 10px;
+  background: #fff;
+  color: #f5576c;
+  font-size: 14px;
+}
+#bbc-panel .bbc-danger:hover:not(:disabled) { background: #fdecee; }
+@keyframes bbc-flash {
+  0%, 100% { transform: scale(1); }
+  30% { transform: scale(1.04); box-shadow: 0 0 0 6px rgba(0, 190, 189, 0.25); }
+}
+#bbc-panel .bbc-flash { animation: bbc-flash 0.6s ease 2; }
+
+#bbc-panel .bbc-log-wrap { border-radius: 8px; background: #f2f5f7; overflow: hidden; }
+#bbc-panel .bbc-log-title { padding: 4px 10px 0; font-size: 11px; color: var(--muted); }
+#bbc-panel .bbc-log {
+  height: 96px;
+  overflow-y: auto;
+  padding: 2px 10px 6px;
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  font-family: ui-monospace, Menlo, monospace;
+  color: #4a555e;
+}
+#bbc-panel .bbc-log:empty::before { content: '还没有运行记录'; color: #b3bcc3; font-family: inherit; }
+
+/* 拖动排序 */
+#bbc-panel .bbc-msg-head { cursor: grab; user-select: none; touch-action: none; }
+#bbc-panel .bbc-grip { color: #c5ccd2; font-size: 14px; margin-left: -4px; line-height: 1; }
+#bbc-panel .bbc-msg:hover .bbc-grip { color: var(--c); }
+#bbc-panel .bbc-msg.bbc-pressing { transform: scale(0.99); transition: transform 0.3s; }
+.bbc-msg.bbc-dragging {
+  cursor: grabbing;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18) !important;
+  border-color: #00bebd !important;
+  transform: rotate(-0.6deg);
+  opacity: 0.96;
+}
+#bbc-panel .bbc-ph { border: 2px dashed #9fdede; border-radius: 12px; background: #f0fbfb; }
+@keyframes bbc-new { from { background: #dff7f7; } to { background: #fff; } }
+#bbc-panel .bbc-msg.bbc-new { animation: bbc-new 1.2s ease; border-color: var(--c); }
+
+/* Boss 打招呼语（第 0 条） */
+#bbc-panel .bbc-greet {
+  padding: 8px 10px 10px 14px;
+  border: 1px dashed #c9d3da;
+  border-radius: 12px;
+  background: #fafbfc;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+#bbc-panel .bbc-greet-head { display: flex; align-items: center; gap: 8px; }
+#bbc-panel .bbc-greet-head b { font-size: 13px; }
+#bbc-panel .bbc-no-0 { background: #9aa6af; }
+#bbc-panel .bbc-greet-state { flex: 1; font-size: 12px; }
+#bbc-panel .bbc-greet-state.bbc-on { color: var(--c-d); }
+#bbc-panel .bbc-greet-state.bbc-off { color: #f5576c; }
+#bbc-panel .bbc-greet-text { color: #2b3238; }
+
+/* 收藏星标：★ 已收藏 / ☆ 未收藏 */
+#bbc-panel .bbc-star-btn.bbc-kept { color: #f7b500; font-size: 15px; }
+#bbc-panel .bbc-star-btn.bbc-kept:hover { background: #fff6dc; }
+#bbc-panel .bbc-send1 { color: var(--c-d); }
+
+/* 图片预览 */
+.bbc-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  background: rgba(15, 20, 25, 0.78);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+  animation: bbc-fade 0.15s ease;
+}
+.bbc-lightbox img { max-width: 88vw; max-height: 88vh; border-radius: 10px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); background: #fff; }
+.bbc-lightbox .bbc-lb-close {
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+@keyframes bbc-fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* 职位卡片左上角：已发送 */
+.bbc-done-badge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 6;
+  width: 22px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+  font-style: normal;
+  color: #fff;
+  background: #00bebd;
+  border-top-left-radius: inherit;
+  border-bottom-right-radius: 9px;
+  pointer-events: auto;
+}
+.bbc-done-badge.bbc-part { background: #ff9f43; }
+
+/* 未登录提示 */
+#bbc-panel .bbc-login {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 14px 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fff4e5;
+  border: 1px solid #ffd59e;
+  font-size: 12px;
+  color: #8a5a00;
+  flex-shrink: 0;
+}
+#bbc-panel .bbc-login[hidden] { display: none; }
+#bbc-panel .bbc-login > div { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+#bbc-panel .bbc-login b { font-size: 13px; color: #6b4500; }
+#bbc-panel .bbc-login-btns { display: flex; gap: 6px; flex-shrink: 0; }
+#bbc-panel .bbc-login .bbc-primary { flex: none; padding: 6px 12px; font-size: 12px; }
+
+/* 聊天页：当前对话 */
+#bbc-panel .bbc-cur {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--c-l);
+  font-size: 12px;
+  min-width: 0;
+}
+#bbc-panel .bbc-cur[hidden], #bbc-panel .bbc-cur [hidden] { display: none; }
+#bbc-panel .bbc-cur-label { color: var(--muted); flex-shrink: 0; }
+#bbc-panel .bbc-cur-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+#bbc-panel .bbc-cur-state { flex-shrink: 0; }
+#bbc-panel .bbc-cur-state.bbc-on { color: var(--c-d); }
+#bbc-panel .bbc-cur-state.bbc-off { color: #ff8a00; }
+
+/* 运行中：开始按钮实时播报 */
+#bbc-panel.bbc-running .bbc-primary:disabled {
+  min-width: 0;
+  opacity: 1;
+  cursor: default;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background: linear-gradient(90deg, #00a6a7, #00bebd, #00a6a7);
+  background-size: 200% 100%;
+  animation: bbc-run 2s linear infinite;
+}
+@keyframes bbc-run { from { background-position: 0 0; } to { background-position: -200% 0; } }

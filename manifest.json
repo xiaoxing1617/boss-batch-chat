@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "Boss 批量沟通",
+  "version": "0.4.0",
+  "description": "在 Boss 直聘职位列表里勾选想沟通的职位，逐个打招呼并按顺序发送多条文本/图片消息。",
+  "content_scripts": [
+    {
+      "matches": ["https://www.zhipin.com/web/geek/*"],
+      "js": ["src/main.js"],
+      "css": ["src/panel.css"],
+      "world": "MAIN",
+      "all_frames": true,
+      "run_at": "document_idle"
+    }
+  ]
+}
