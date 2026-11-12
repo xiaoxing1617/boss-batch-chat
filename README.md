@@ -9,6 +9,11 @@
 >
 > **下载、安装或使用本工具，即表示你已阅读、理解并同意下方的[《法律声明与版权声明》](#法律声明与版权声明)，自愿承担全部风险和后果；如不同意，请勿下载和使用。**
 
+> [!TIP]
+> ## 📦 [第一次用？点这里看图文安装教程（Chrome / Edge）→](docs/INSTALL.md)
+>
+> 每一步都有截图，**2 分钟装好**。懒得动手？教程里有 **[一句话让 AI 帮你安装](docs/INSTALL.md#-一句话让-ai-帮你安装)** 的提示词，复制给 AI 助手就行。
+
 <p>
   <a href="https://github.com/xiaoxing1617/boss-batch-chat/stargazers"><img src="https://img.shields.io/github/stars/xiaoxing1617/boss-batch-chat?style=social" alt="GitHub stars"></a>
   <img src="https://img.shields.io/badge/Chrome%20%2F%20Edge-111%2B-4285F4?logo=googlechrome&logoColor=white" alt="Chrome / Edge 111+">
@@ -130,17 +135,19 @@
 
 ## 安装
 
-这个扩展没有上架应用商店，用「开发者模式」加载，一共 4 步：
+> 📖 **完整图文教程：[docs/INSTALL.md](docs/INSTALL.md)**：Chrome、Edge 每一步都有截图，还有[一句话让 AI 帮你安装](docs/INSTALL.md#-一句话让-ai-帮你安装)。
 
-1. **下载代码**：在本页面点绿色的 **Code → Download ZIP**，然后解压；或者用 git：
+这个扩展没有上架应用商店，用「开发者模式」加载，简单说就 4 步：
+
+1. **下载代码**：在本页面点绿色的 **Code → Download ZIP**，解压后放到一个固定的文件夹（以后别删）；或者用 git：
 
    ```bash
    git clone https://github.com/xiaoxing1617/boss-batch-chat.git
    ```
 
 2. **打开扩展页**：Chrome 地址栏输入 `chrome://extensions`（Edge 输入 `edge://extensions`）。
-3. **打开右上角「开发者模式」**。
-4. **点「加载已解压的扩展程序」**，选择解压后的文件夹（里面直接能看到 `manifest.json` 的那一层）。
+3. **打开「开发者模式」**：Chrome 在页面右上角，Edge 在左侧栏底部（叫「开发人员模式」）。
+4. **点「加载未打包的扩展程序」**（Edge 叫「加载解压缩的扩展」），选择解压后的文件夹（里面直接能看到 `manifest.json` 的那一层）。
 
 装好后打开 Boss 直聘的职位搜索页，右下角就会出现面板。
 
@@ -239,7 +246,7 @@ boss-batch-chat/
 │   ├── bridge.js      页面和扩展后台之间传话（检查更新、后台保活）
 │   ├── background.js  扩展后台：检查 GitHub 新版本、更新后刷新页面、发送期间防止标签页被卸载
 │   └── update.*       一键更新页面
-└── docs/              README 用的截图和图片
+└── docs/              安装教程（INSTALL.md）、README 用的截图和图片
 ```
 
 ## 更新日志
