@@ -31,9 +31,46 @@
   const STORE_KEY = 'bbc_v2';
   const MAX_PER_RUN = 100;
   const REPO_URL = 'https://github.com/xiaoxing1617/boss-batch-chat';
+  const CLOCK_ICON =
+    '<svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M8 4.6V8l2.3 1.5"/></svg>';
   const GH_ICON =
     '<svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>';
-  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  // 后台保活①：等待计时交给一个独立的小线程（Web Worker）。
+  // 标签页切到后台后，Chrome 会把页面里的 setTimeout 拖慢到 1 秒甚至 1 分钟一次，但 Worker 里的计时不受影响，
+  // 时间到了它发消息叫醒页面，这样切走标签页也能按正常节奏发送。Worker 建不起来就退回普通计时。
+  let timerWorker = null;
+  let timerSeq = 0;
+  const timerWait = new Map();
+  const getTimerWorker = () => {
+    if (timerWorker !== null) return timerWorker;
+    try {
+      const src = 'onmessage=(e)=>setTimeout(()=>postMessage(e.data.id),e.data.ms)';
+      const url = URL.createObjectURL(new Blob([src], { type: 'text/javascript' }));
+      timerWorker = new Worker(url);
+      URL.revokeObjectURL(url);
+      timerWorker.onmessage = (e) => {
+        const r = timerWait.get(e.data);
+        timerWait.delete(e.data);
+        r?.();
+      };
+      timerWorker.onerror = () => {
+        timerWorker = false; // 出错就退回普通计时，把正在等的都放行
+        timerWait.forEach((r) => setTimeout(r, 0));
+        timerWait.clear();
+      };
+    } catch {
+      timerWorker = false;
+    }
+    return timerWorker;
+  };
+  const sleep = (ms) =>
+    new Promise((r) => {
+      const w = getTimerWorker();
+      if (!w) return setTimeout(r, ms);
+      const id = ++timerSeq;
+      timerWait.set(id, r);
+      w.postMessage({ id, ms });
+    });
   const rand = (a, b) => a + Math.random() * (b - a);
   const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
   const isVisible = (el) => {
@@ -133,7 +170,7 @@
       <button class="bbc-nav-btn bbc-jobs-only" data-page="sel">已选 <span class="bbc-badge bbc-sel-n">0</span></button>
       <button class="bbc-nav-btn" data-page="lib">文本库</button>
       <button class="bbc-nav-btn" data-page="rec">记录</button>
-      <button class="bbc-nav-btn" data-page="about">关于<i class="bbc-dot" hidden></i></button>
+      <button class="bbc-nav-btn" data-page="about">说明与关于<i class="bbc-dot" hidden></i></button>
     </div>
 
     <div class="bbc-login" hidden>
@@ -208,6 +245,26 @@
           <span class="bbc-logo bbc-logo-lg">B</span>
           <div><b>Boss 批量沟通</b><span class="bbc-hint">自己挑职位，一键打招呼 + 按顺序发消息</span></div>
           <span class="bbc-ver">v…</span>
+        </div>
+        <div class="bbc-card">
+          <div class="bbc-sec-title"><span>💡 发送时可以切走吗？</span></div>
+          <div class="bbc-note">
+            <p><b>建议：</b>开始发送前，把 Boss 这个标签页<b>拖出来单独成一个窗口</b>，再去别的窗口做事。窗口别最小化、电脑别休眠，这样最稳。</p>
+            <p><b>切走也能跑：</b>插件已经做了<b>后台保活</b>，就算切到别的标签页，也会按正常节奏继续发送。</p>
+            <p><b>保活原理：</b>Chrome 会把后台标签页里的计时拖慢（最慢一分钟才动一次）。插件发送期间：</p>
+            <ul>
+              <li>把「等几秒」交给一个不受后台限速的独立小线程来计时，时间到了叫醒页面；</li>
+              <li>对 Chrome 声明「这个页面正在干活」，避免标签页被冻结；</li>
+              <li>不让 Chrome 在内存紧张时把这个标签页自动卸载。</li>
+            </ul>
+            <p>发送结束后这些都会自动撤销，不影响平时使用，也不会让电脑一直保持唤醒。</p>
+          </div>
+          <div class="bbc-legend">
+            <span><i class="bbc-done-badge bbc-wait">${CLOCK_ICON}</i>正在发送</span>
+            <span><i class="bbc-done-badge bbc-done">✓</i>已发完</span>
+            <span><i class="bbc-done-badge bbc-part">!</i>出错停下</span>
+          </div>
+          <div class="bbc-hint">职位卡片左上角的小标记含义。</div>
         </div>
         <div class="bbc-card">
           <div class="bbc-sec-title"><span>版本更新</span><button class="bbc-ghost" data-act="check-upd">检查更新</button></div>
@@ -683,9 +740,27 @@
 
   // ================= 运行控制 =================
   let running = false;
+  let sendingKey = null; // 正在处理的 HR（职位卡片上显示黄色时钟）
   let loggedIn = null; // 登录状态：null=还不知道 true=已登录 false=没登录
+  // 后台保活②③：发送期间
+  //  · 拿一把 Web Lock：Chrome 不会冻结持有锁的标签页；
+  //  · 让扩展后台把这个标签页标成「不自动丢弃」：内存紧张时 Chrome 不会把它卸载掉，结束后恢复。
+  let releaseLock = null;
+  const keepAlive = (on) => {
+    if (on && !releaseLock && navigator.locks)
+      navigator.locks
+        .request('bbc-sending', () => new Promise((r) => (releaseLock = r)))
+        .catch(() => {});
+    if (!on && releaseLock) {
+      releaseLock();
+      releaseLock = null;
+    }
+    if (window.top === window) extCall('keepAlive', { on }, 5000);
+  };
   const setRunning = (on) => {
     running = on;
+    keepAlive(on);
+    sendingKey = null;
     panel.classList.toggle('bbc-running', on);
     $('[data-act="start"]').disabled = on;
     $('[data-act="send-cur"]').disabled = on;
@@ -764,8 +839,10 @@
     save();
     refreshCount();
   };
-  // 发送完成的职位：卡片左上角打勾（只发了一部分的显示「!」）
+  // 职位卡片左上角的状态：
+  //   正在处理 → 黄色时钟；发完 → 绿色 ✓；只发了一部分（出错停下）→ 红色 !
   const sentState = (job) => {
+    if (running && sendingKey === hrKey(job)) return 'wait';
     const r = state.sentLog[hrKey(job)];
     if (!r) return null;
     return r.dup || r.sent >= r.total ? 'done' : 'part';
@@ -783,9 +860,18 @@
         box.appendChild(b);
       }
       const r = state.sentLog[hrKey(job)];
-      b.className = 'bbc-done-badge bbc-' + s;
-      b.textContent = s === 'done' ? '✓' : '!';
-      b.title = s === 'done' ? '已给这个 HR 发过批量消息' : `只发出了 ${r.sent}/${r.total} 条`;
+      if (b.dataset.s !== s) {
+        b.dataset.s = s;
+        b.className = 'bbc-done-badge bbc-' + s;
+        if (s === 'wait') b.innerHTML = CLOCK_ICON;
+        else b.textContent = s === 'done' ? '✓' : '!';
+      }
+      b.title =
+        s === 'wait'
+          ? '正在给这个 HR 发送，请稍等' + (r ? `（已发 ${r.sent}/${r.total} 条）` : '')
+          : s === 'done'
+            ? '已给这个 HR 发过批量消息'
+            : `出错停下了：只发出了 ${r.sent}/${r.total} 条`;
     });
   }
   const decorate = () => {
@@ -1232,12 +1318,17 @@
         if (!running) break;
         progress.n = `${i + 1}/${jobs.length}`;
         let r;
+        sendingKey = hrKey(job);
+        refreshBadges();
         try {
           r = await processJob(job);
         } catch (e) {
           log('  ✗ ' + (e?.message || e));
           r = 'skip';
           if (/登录/.test(e?.message)) r = 'abort';
+        } finally {
+          sendingKey = null;
+          refreshBadges();
         }
         if (r === 'abort') break;
         if (r === 'ok') {

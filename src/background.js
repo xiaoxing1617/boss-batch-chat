@@ -58,6 +58,10 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       case 'openUpdater':
         await chrome.tabs.create({ url: chrome.runtime.getURL('src/update.html') });
         return { ok: true };
+      case 'keepAlive':
+        // 发送期间不让 Chrome 在内存紧张时自动丢弃（卸载）这个标签页，结束后恢复默认
+        if (sender.tab?.id != null) await chrome.tabs.update(sender.tab.id, { autoDiscardable: !msg.data?.on });
+        return { ok: true };
       default:
         throw new Error('未知请求');
     }

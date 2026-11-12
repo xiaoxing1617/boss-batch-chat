@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Boss 批量沟通",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "在 Boss 直聘职位列表里勾选想沟通的职位，逐个打招呼并按顺序发送多条文本/图片消息。",
   "homepage_url": "https://github.com/xiaoxing1617/boss-batch-chat",
   "minimum_chrome_version": "111",

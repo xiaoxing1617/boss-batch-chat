@@ -2,7 +2,7 @@
 // 这里（扩展的隔离环境）转给后台，再把结果传回去。只转发白名单里的几种请求。
 (() => {
   if (window.top !== window) return;
-  const ALLOW = new Set(['info', 'checkUpdate', 'openUpdater']);
+  const ALLOW = new Set(['info', 'checkUpdate', 'openUpdater', 'keepAlive']);
   window.addEventListener('message', (e) => {
     if (e.source !== window || !e.data || e.data.source !== 'bbc-page') return;
     const { id, type, data } = e.data;

@@ -588,7 +588,10 @@
   border-bottom-right-radius: 9px;
   pointer-events: auto;
 }
-.bbc-done-badge.bbc-part { background: #ff9f43; }
+.bbc-done-badge.bbc-part { background: #f04848; } /* 出错：红色 + ! */
+.bbc-done-badge.bbc-wait { background: #f5b301; } /* 正在发送：黄色 + 时钟 */
+.bbc-done-badge.bbc-wait svg { animation: bbc-tick 2s linear infinite; }
+@keyframes bbc-tick { to { transform: rotate(360deg); } }
 
 /* 未登录提示 */
 #bbc-panel .bbc-login {
@@ -706,3 +709,12 @@
 #bbc-panel .bbc-repo i { font-style: normal; color: var(--muted); }
 #bbc-panel .bbc-repo:hover { border-color: var(--c); color: var(--c-d); background: #f6fdfd; }
 #bbc-panel .bbc-links { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
+
+/* 说明与关于：后台运行说明 */
+#bbc-panel .bbc-note { font-size: 12.5px; line-height: 1.7; color: #4a545c; }
+#bbc-panel .bbc-note p { margin: 0 0 6px; }
+#bbc-panel .bbc-note ul { margin: 0 0 6px; padding-left: 18px; }
+#bbc-panel .bbc-note li { margin: 2px 0; }
+#bbc-panel .bbc-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 8px; font-size: 12px; color: #4a545c; }
+#bbc-panel .bbc-legend span { display: inline-flex; align-items: center; gap: 6px; }
+#bbc-panel .bbc-legend .bbc-done-badge { position: static; border-radius: 6px; width: 20px; height: 18px; pointer-events: none; }
